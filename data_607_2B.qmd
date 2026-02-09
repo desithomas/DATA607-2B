@@ -67,3 +67,39 @@ The null error rate is the percentage of time you would be wrong if you always g
 
 In terms of our penguins and their researchers, a model that falsely predicts that a penguin is female will have a cost of an entire satellite tracker. If our Null Error Rate is high (for example, there are more males than females) and our model isn't significantly better than the baseline then we are risking expensive equipment on a guesses. For example in our data, there are 54 males and 39 females. The number of eligible female penguins that could be tracked but are not because of the model predicting them as male, would lead to a loss of potential data. As African penguins are endangered, this could also have negative consequences on conservation efforts. 
 
+## Confusion Matrices at Multiple Thresholds
+Probability thresholds of 0.2, 0.5, and 0.8 were used.
+
+```{r}
+# 0.2 
+
+df_0.2 <- df %>% 
+  mutate(Predicted_threshold = ifelse(.pred_female > 0.2, "female", "male"))
+
+confusion_0.2 <- table(Predicted = factor(df_0.2$Predicted_threshold, levels = c("female", "male")), Actual = factor(df_0.2$sex, levels = c("female", "male")))
+
+print("Confusion Matrix at the 0.2 Threshold")
+print(confusion_0.2)
+
+#0.5
+
+df_0.5 <- df %>% 
+  mutate(Predicted_threshold = ifelse(.pred_female > 0.5, "female", "male"))
+
+confusion_0.5 <- table(Predicted = factor(df_0.5$Predicted_threshold, levels = c("female", "male")), Actual = factor(df_0.5$sex, levels = c("female", "male")))
+
+print("Confustion Matrix at the 0.5 Threshold")
+print(confusion_0.5)
+
+df_0.8 <- df %>% 
+  mutate(Predicted_threshold = ifelse(.pred_female > 0.8, "female", "male"))
+
+confusion_0.8 <- table(Predicted = factor(df_0.8$Predicted_threshold, levels = c("female", "male")), Actual = factor(df_0.8$sex, levels = c("female", "male")))
+
+print("Confusion Matrix at the 0.8 Threshold")
+print(confusion_0.8)
+
+
+
+```
+
