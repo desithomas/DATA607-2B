@@ -9,28 +9,25 @@ editor: visual
 
 When I was a teen I used to volunteer at the NY Aquarium as a Docent. One of my animal specialties were the African Penguins (along with Sharks and Sea Lions). Fun times!
 
+I also was a Surrender Prevention Coordinator for an animal shelter. 
+
 ## Potential Business/Non-Profit Problem
 
-Please note that I don't actually know how conservationists make their decisions. This is a background story for this assignment. Do not take it as fact. These are a "I watched National Geographic documentary" type background stories.
 
-National Geogrpahic Style. A conservation team received a grant to study the migration patterns of female African Penguins. They received a certain number of satellite trackers to attach to female penguins so the team can track their egg-laying migrations. Falsely predicting a penguin is female would cost them an entire satellite tracker and is wasted grant money. These penguins are sexually monomorphic. I suppose you could also use this for a breding program?
+
+National Geographic Style: A conservation team received a grant to study the migration patterns of female African Penguins. They received a certain number of satellite trackers to attach to female penguins so the team can track their egg-laying migrations. Falsely predicting a penguin is female would cost them an entire satellite tracker and is wasted grant money. These penguins are sexually monomorphic. I suppose you could also use this for a breeding program?
 
 https://www.cbsnews.com/pittsburgh/news/2-african-penguin-chicks-national-aviary/
 
 Outline:
-
-I need to do a survey of the population by exploring the data through a class balance by counting the sexes (males vs. females). I should calcultate the null error rate. This is important because what if we guessed female for every bird? How often would we/the team be wrong? This is important for the model to not guess the majority but to also identify the minority class. I will use the counts for max and sum then calculate the null error rate, majority/total.
-
-I need to create the three confusion matrices. This breaks down the performance of a classification model by telling you how it was wrong. I have to set the threshold and compare the columns and sort them into Correct and Wrong predictions. Ex. Guess: Female, Actual: Female, Prediction: Correct vs. Guess: Female, Actual: Male, Prediction: Wrong.
-
-I have to continue studying so I can understand what I need to actually code out. I have a plan, which will evolve in the codebase.
+To complete this assignment, I completed the four tasks: Null Error Rate, Confusioin Matrcies at Multiple Thresholds, Performance Metrics, and Threshold Use Cases. Some challenges faced were understanding the background of the math and what certain terms were. There was a lot of self-study done, researching, printing of the assignment (to physically write things down) and YouTube University watching.
 
 # Load Libraries and Data 
 
 ```{r}
 library(tidyverse)
 
-df <- read_csv("penguin_predictions.csv")
+df <- read_csv("https://raw.githubusercontent.com/desithomas/DATA607-2B/refs/heads/main/penguin_predictions.csv")
 
 glimpse(df)
 ```
@@ -99,7 +96,107 @@ confusion_0.8 <- table(Predicted = factor(df_0.8$Predicted_threshold, levels = c
 print("Confusion Matrix at the 0.8 Threshold")
 print(confusion_0.8)
 
-
+calculate_perform_metrics <- function(cm, threshold) {
+  TP 
+}
 
 ```
 
+# Performance metrics 
+```{r}
+#Table
+
+calculate_perform_metrics <- function(cm, threshold) {
+  TP <- cm[1,1] # Predicted Female, Actual Female
+  FP <- cm[1,2] # Predicted Female, Actual Male
+  FN <- cm[2,1] # Predicted Male, Actual Female
+  TN <- cm[2,2] # Predicted Male, Actual Male
+  
+  #Formulas and F1 Score 
+  accuracy <- (TP + TN) / sum(cm)
+  precision <- TP / (TP + FP)
+  recall <- TP / (TP + FN)
+  f1 <- 2 * (precision * recall) / (precision + recall)
+  
+  return(data.frame(
+    Threshold = threshold,
+    Accuracy = round(accuracy, 4),
+    Precision = round(precision, 4),
+    Recall = round(recall, 4),
+    F1_Score = round(f1, 4)
+  ))
+}
+
+
+metrics_summary <- rbind(
+  calculate_perform_metrics(confusion_0.2, 0.2),
+  calculate_perform_metrics(confusion_0.5, 0.5),
+  calculate_perform_metrics(confusion_0.8, 0.8)
+)
+
+knitr::kable(metrics_summary, caption = "Model Performance Metrics Across Thresholds")
+```
+So, what do these have to do with our penguins and researchers? Well, when our model predicts that a penguin is female, how often was it right? This was the TP/(TP +TP) formula aka our model's precision. If our model has low precision then it means that the researchers would place trackers on male birds instead of female birds. If our model has high precision, then it means that our researchers are placing trackers on female birds! 
+
+Now, do you remember the count of female birds that we found in the beginning? When we measure the recall <- TP/(TP + FN), we are measuring how many females out of the actual females penguins, did our model find? How this effects tracking and the effort: If our recall is too long then it means that the researchers would have missed most of the females. The model would have declared a female penguin a "male" and it could potentially lead to our study being too small. If our model had a high recall then it means that we found almost every female penguin in the penguin colony. 
+
+Accuracy relates to our researchers and penguins in that it determines how often the model was overall correct. Important! Imagine if you told Natural Geographic that your model's accuracy was .2 and you wanted top dollars for your model! For an endangered species! This was the formula for accuracy: (TP + TN) / total. About 58% of the penguins in this colony are male, If the model guessed male for each bird, it would have 58% accuracy. However, this would lead to the recall being 0% because we would have found 0 female birds. The study would not be able to continue because there would be "no female birds to place trackers on." 
+
+This leads us to the F1 score. This is the harmonic mean of precision and recall. Essentially, it means that it is balanced. 
+
+# Threshold Use Cases (CIRDC - Canine Infectious Respiratory Disease Complex)
+
+0.2 Threshold: 
+A high population animal shelter currently has CIRDC making the rounds through their dog population. In this case, having a False Negative can lead to the other dogs in the General Population getting sick. Ideally, sick dogs go into ISO - to avoid getting healthy dogs sick and spreading CIRDC around. This False Negative could lead to a shelter wide outbreak. While a False Positive is not ideal, but still a bit better than having another ~70 healthy dogs being infected. This is a big reason why shelters and rescues ask you to quarantine your adopted pets before introducing them to your current pets at home.
+
+0.8 Threshold: 
+This maximizes Precision. The suspected dog is only moved to ISO if the model is 80% certain that the dog has CIRDC. For a real life example, the model may look for something like coughing AND nasal discharge, rather than just coughing. It may raise some false negatives that remain in their kennels within the General Population. On the other hand, ISO might have enough space for severe cases now, rather than just CIRDC!
+
+# LLM Transscript
+
+User: How do I render the data for the performance metrics? Do a guide and walkthrough along with the syntax. (Attached screenshot of relevant code)
+
+LLM: To render your performance metrics professionally, we will use the knitr::kable() function. This is the industry-standard "engine" for converting raw R data frames into clean, formatted HTML tables for your report.
+
+Here is the complete guide, including the code to generate the data and the specific syntax to render it.
+
+knitr::kable(
+  metrics_summary, 
+  digits = 4,                        # 1. Rounds all numbers to 4 decimal places
+  caption = "Performance Metrics by Threshold", # 2. Adds a professional title
+  align = "c",                       # 3. Centers the text in columns
+  col.names = c("Threshold", "Accuracy", "Precision", "Recall", "F1 Score") # 4. Renames columns
+)
+
+Step 2: The Syntax Walkthrough (The "Deep Dive")
+You asked for the syntax guide. Here is exactly what the arguments inside knitr::kable() are doing:
+
+1. metrics_summary (The Data)
+
+What it is: This is the data frame object you created in Step B.
+
+Why: You must pass the raw data first. kable cannot work without an object to format.
+
+2. digits = 4
+
+What it does: It automatically rounds every numeric column in your table to 4 decimal places.
+
+Why use it? Without this, your table will show 0.4193548387..., which looks messy and unprofessional. This cleans it up instantly without you needing to run round() on every single variable manually.
+
+3. caption = "..."
+
+What it does: Adds a numbered table title (e.g., Table 1: Performance Metrics...) above the grid.
+
+Why use it? In academic and professional reports, every table must have a title so the reader knows what they are looking at before they read the numbers.
+
+4. align = "c"
+
+What it does: Sets the alignment of the columns. "c" = Center, "l" = Left, "r" = Right.
+
+Why use it? Numbers are easier to compare when they are centered or right-aligned. Default left-alignment often makes tables look jagged.
+
+5. col.names = c(...)
+
+What it does: Replaces the variable names (like F1_Score) with pretty headers (like F1 Score).
+
+Why use it? Variable names often have underscores (e.g., pred_female). This argument lets you fix the labels for the human reader without changing the underlying code.
