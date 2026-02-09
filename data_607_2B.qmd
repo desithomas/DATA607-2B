@@ -7,23 +7,63 @@ editor: visual
 
 ## Approach
 
-When I was a teen I used to volunteer at the NY Aquarium as a Docent. One of my animal specialities were the African Penguins (along with Sharks and Sea Lions). Fun times!
+When I was a teen I used to volunteer at the NY Aquarium as a Docent. One of my animal specialties were the African Penguins (along with Sharks and Sea Lions). Fun times!
 
 ## Potential Business/Non-Profit Problem
 
-Please note that I don't actually know how conservationists make their decisions. This is a background story for this assignment. Do not take it as fact. These are a "I watched National Geographic documentary" type background stories. 
+Please note that I don't actually know how conservationists make their decisions. This is a background story for this assignment. Do not take it as fact. These are a "I watched National Geographic documentary" type background stories.
 
 National Geogrpahic Style. A conservation team received a grant to study the migration patterns of female African Penguins. They received a certain number of satellite trackers to attach to female penguins so the team can track their egg-laying migrations. Falsely predicting a penguin is female would cost them an entire satellite tracker and is wasted grant money. These penguins are sexually monomorphic. I suppose you could also use this for a breding program?
 
 https://www.cbsnews.com/pittsburgh/news/2-african-penguin-chicks-national-aviary/
 
-Outline: 
+Outline:
 
-I need to do a survey of the population by exploring the data through a class balance by counting the sexes (males vs. females). I should calcultate the null error rate. This is important because what if we guessed female for every bird? How often would we/the team be wrong? This is important for the model to not guess the majoritybut to also identify the minority class. I will use the counts for max and sum then calculate the null error rate, majority/total. 
+I need to do a survey of the population by exploring the data through a class balance by counting the sexes (males vs. females). I should calcultate the null error rate. This is important because what if we guessed female for every bird? How often would we/the team be wrong? This is important for the model to not guess the majority but to also identify the minority class. I will use the counts for max and sum then calculate the null error rate, majority/total.
+
+I need to create the three confusion matrices. This breaks down the performance of a classification model by telling you how it was wrong. I have to set the threshold and compare the columns and sort them into Correct and Wrong predictions. Ex. Guess: Female, Actual: Female, Prediction: Correct vs. Guess: Female, Actual: Male, Prediction: Wrong.
+
+I have to continue studying so I can understand what I need to actually code out. I have a plan, which will evolve in the codebase.
+
+# Load Libraries and Data 
+
+```{r}
+library(tidyverse)
+
+df <- read_csv("penguin_predictions.csv")
+
+glimpse(df)
+```
 
 
+# 1. Null Error Rate
 
-I need to create the three confusion matrices. This breaks down the performance of a classification model by telling you how it was wrong. I have to set the threshold and compare the columns and sort them into Correct and Wrong predictions. Ex. Guess: Female, Actual: Female, Prediction: Correct vs. Guess: Female, Actual: Male, Prediction: Wrong. 
+Calculating the null error rate (majority-class error rate)
 
-I have to continue studying so I can understand what I need to actually code out. I have a plan, which will evolve in the codebase. 
+
+```{r}
+
+# Male penguins vs. Female penguins
+sex_count <- table(df$sex)
+print(sex_count)
+
+majority_count <- max(sex_count)
+
+total_count <- sum(sex_count)
+
+null_accuracy <- majority_count / total_count
+
+null_error_rate <- 1 - null_accuracy 
+
+print(paste("Null Accuracy (Majority %):", round(null_accuracy, 4)))
+print(paste("Null Error Rate (Minority %):", round(null_error_rate, 4)))
+```
+
+```{r}
+ggplot(df, aes(x = sex, fill = sex)) + geom_bar() + labs(title = "Distribution of Actual Class (sex))", y = "Count", x = "Sex") + theme_minimal()
+```
+# Importance of Understanding the Null Error Rate and Accuracy
+The null error rate is the percentage of time you would be wrong if you always guessed the majority class. In terms of your model, it represents the performance of your model. A model that just predicts the majority class every time is not a model that is worth paying for or backing. However, high accuracy is also not the sole standard because the error rate is the same as the null error rate. A model needs to significantly outperform/ "out-guess" this as the baseline. 
+
+In terms of our penguins and their researchers, a model that falsely predicts that a penguin is female will have a cost of an entire satellite tracker. If our Null Error Rate is high (for example, there are more males than females) and our model isn't significantly better than the baseline then we are risking expensive equipment on a guesses. For example in our data, there are 54 males and 39 females. The number of eligible female penguins that could be tracked but are not because of the model predicting them as male, would lead to a loss of potential data. As African penguins are endangered, this could also have negative consequences on conservation efforts. 
 
