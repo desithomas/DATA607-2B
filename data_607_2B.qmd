@@ -74,8 +74,32 @@ Probability thresholds of 0.2, 0.5, and 0.8 were used.
 # 0.2 
 
 df_0.2 <- df %>% 
-  mutate(probability_threshold = ifelse(.pred_female > 0.2, "female", "male"))
+  mutate(Predicted_threshold = ifelse(.pred_female > 0.2, "female", "male"))
 
-confusion_0.2 <- table(Predicted = factor(df_0.2$probability_threshold, levels = c("female", "male")), Actual = factor(df_0.2$sex, levels = c("female", "male")))
+confusion_0.2 <- table(Predicted = factor(df_0.2$Predicted_threshold, levels = c("female", "male")), Actual = factor(df_0.2$sex, levels = c("female", "male")))
+
+print("Confusion Matrix at the 0.2 Threshold")
+print(confusion_0.2)
+
+#0.5
+
+df_0.5 <- df %>% 
+  mutate(Predicted_threshold = ifelse(.pred_female > 0.5, "female", "male"))
+
+confusion_0.5 <- table(Predicted = factor(df_0.5$Predicted_threshold, levels = c("female", "male")), Actual = factor(df_0.5$sex, levels = c("female", "male")))
+
+print("Confustion Matrix at the 0.5 Threshold")
+print(confusion_0.5)
+
+df_0.8 <- df %>% 
+  mutate(Predicted_threshold = ifelse(.pred_female > 0.8, "female", "male"))
+
+confusion_0.8 <- table(Predicted = factor(df_0.8$Predicted_threshold, levels = c("female", "male")), Actual = factor(df_0.8$sex, levels = c("female", "male")))
+
+print("Confusion Matrix at the 0.8 Threshold")
+print(confusion_0.8)
+
+
+
 ```
 
